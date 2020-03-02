@@ -11,9 +11,9 @@ class HillClimbing:
         self.best = self.v_c
         self.a = -5.0
         self.b = 1.0
-        self.precision = 5
-        N = (self.b - self.a) * np.power(10, 5)
-        n = np.ceil(np.log2(N))
+        self.precision = 3
+        self.N = (self.b - self.a) * np.power(10, self.precision)
+        self.n = np.ceil(np.log2(self.N))
 
     def test_function(self):
         pass  # aici initializam self.a, self.b si valoarea functiei care trebuie returnata
@@ -22,14 +22,14 @@ class HillClimbing:
         decimal = 0
         for index in range(0, len(binary_point)):
             decimal += binary_point[index] * np.power(2, len(binary_point) - index - 1)
-        real = self.a + decimal * (self.b - self.a) / (
-            np.power(2, len(binary_point)) - 1
-        )
+        real = self.a + decimal * (self.b - self.a) / (np.power(2, len(binary_point)) - 1)
         return real
 
     def search_neighbourhood(self):
         v_c = self.v_c
 
 
-if __name__ == "__main__":
-    print(HillClimbing().binary_decoding([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1]))
+if __name__=="__main__":
+    h = HillClimbing()
+    print(h.n)
+    print(h.binary_decoding([0,0,0,0,0,0,0,0,0,0,0,0,1]))
