@@ -65,8 +65,14 @@ class HillClimbing:
     def select_v_n_from_neighbours(self, val_v_c, neighbours, number_variables, method="first_improvement"):
         if method == "first_improvement":
             for index in range (0, neighbours.shape[0]):
-                if self.test_Griewangks(neighbours[index], number_variables) - val_v_c <= pow(10, -self.precision):
+                if self.test_Griewangks(neighbours[index], number_variables) - val_v_c <= pow(10, -3):
                     return neighbours[index]
+        elif method == "best_improvement":
+            val_neighbours = []
+            for neighbour in neighbours:
+                val_neighbours.append(self.test_Griewangks(neighbour, number_variables))
+            index = np.argmin(val_neighbours)
+            return neighbours[index]
 
     def HillClimbingAlgorithm(self, n, number_variables):
         t = 0
@@ -78,9 +84,11 @@ class HillClimbing:
             val_v_c = self.test_Griewangks(v_c, number_variables)
             while not local:
                 neighbours = self.generate_HammingNeighbours(v_c, n, number_variables)
-                v_n = self.select_v_n_from_neighbours(val_v_c,neighbours, number_variables, method="first_improvement")
-                if self.test_Griewangks(v_n, number_variables) - val_v_c <= pow(10,-self.precision):
+                # v_n = self.select_v_n_from_neighbours(val_v_c,neighbours, number_variables, method="first_improvement")
+                v_n = self.select_v_n_from_neighbours(val_v_c, neighbours, number_variables, method="best_improvement")
+                if self.test_Griewangks(v_n, number_variables) - val_v_c <= pow(10,-3):
                     v_c = v_n
+                    print("Am gasit o valoare mai buna: {0}".format(self.test_Griewangks(v_n, number_variables)))
                 else:
                     local = True
             t += 1
