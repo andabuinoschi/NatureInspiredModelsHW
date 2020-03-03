@@ -1,6 +1,6 @@
 import numpy as np
 
-MAX = 2000
+MAX = 200
 
 
 def switch_bit(bitarray, position):
@@ -12,8 +12,8 @@ def switch_bit(bitarray, position):
 def binary_decoding(binary_point, a, b):
     decimal = 0
     for index in range(0, len(binary_point)):
-        decimal += binary_point[index] * np.power(2, len(binary_point) - index - 1)
-    real = a + decimal * (b - a) / (np.power(2, len(binary_point)) - 1)
+        decimal += binary_point[index] * pow(2, len(binary_point) - index - 1)
+    real = a + decimal * (b - a) / (pow(2, len(binary_point)) - 1)
     return real
 
 
@@ -44,10 +44,10 @@ def generate_HammingNeighbours(candidate, n, number_variables):
 
 class HillClimbing:
     def __init__(self):
-        self.precision = 3
+        self.precision = 4
 
     def return_N_n(self, a, b):
-        N = (b - a) * np.power(10, self.precision)
+        N = (b - a) * pow(10, self.precision)
         n = np.ceil(np.log2(N))
         return int(N), int(n)
 
@@ -58,7 +58,10 @@ class HillClimbing:
         # print(N, n)
         float_points = return_float_point(candidate, n, a, b, number_variables)
         # print(float_points)
-        function_termen_1 = np.sum(np.power(float_points, 2)) / 4000
+        sum = 0
+        for float_point in float_points:
+            sum += pow(float_point, 2)
+        function_termen_1 = sum / 4000
         function_termen_2 = 1
         for index in range(0, number_variables):
             function_termen_2 *= np.cos(float_points[index] / (index + 1))
@@ -69,7 +72,7 @@ class HillClimbing:
     def select_v_n_from_neighbours(self, val_v_c, neighbours, number_variables, method="first_improvement"):
         if method == "first_improvement":
             for index in range (0, neighbours.shape[0]):
-                if self.test_Griewangks(neighbours[index], number_variables) - val_v_c <= pow(10, -3):
+                if self.test_Griewangks(neighbours[index], number_variables) < val_v_c:
                     return neighbours[index]
         elif method == "best_improvement":
             val_neighbours = []
@@ -90,19 +93,23 @@ class HillClimbing:
                 neighbours = generate_HammingNeighbours(v_c, n, number_variables)
                 # v_n = self.select_v_n_from_neighbours(val_v_c,neighbours, number_variables, method="first_improvement")
                 v_n = self.select_v_n_from_neighbours(val_v_c, neighbours, number_variables, method="best_improvement")
-                if self.test_Griewangks(v_n, number_variables) - val_v_c <= pow(10,-3):
+                val_v_n = self.test_Griewangks(v_n, number_variables)
+                if  val_v_n < val_v_c:
                     v_c = v_n
+                    val_v_c = val_v_n
                     print("Am gasit o valoare mai buna: {0}".format(self.test_Griewangks(v_n, number_variables)))
                 else:
                     local = True
             t += 1
-            if val_v_c - best_value <= pow(10,-self.precision):
+            if val_v_c < best_value:
                 best = v_c
+                best_value = val_v_c
             print("Iteratia {0}, cea mai buna valoare gasita: {1}".format(t,best_value))
         return best
 
 
 if __name__ == "__main__":
     h = HillClimbing()
-    print(h.HillClimbingAlgorithm(21, 2))
+    print(h.return_N_n(-600,600))
+    print(h.HillClimbingAlgorithm(24, 30))
     # print(h.generate_HammingNeighbours([1, 0,0,0,1,1],3,2))
