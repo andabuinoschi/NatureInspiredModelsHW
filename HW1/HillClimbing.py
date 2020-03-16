@@ -1,5 +1,5 @@
 import numpy as np
-from math import sqrt, cos
+from math import sqrt, cos, pi
 
 MAX = 50
 
@@ -23,7 +23,17 @@ class HillClimbing:
             self.number_variables = 30
             self.a1 = -600
             self.b1 = 600
-            self.N, self.n = self.return_N_n()
+        elif function_type == "Rastrigin":
+            self.name = "Rastrigin"
+            self.number_variables = 30
+            self.a1 = -5.12
+            self.b1 = 5.12
+        elif function_type == "Rosenbrock":
+            self.name = "Rosenbrock"
+            self.number_variables = 30
+            self.a1 = -2.048
+            self.b1 = 2.048
+        self.N, self.n = self.return_N_n()
 
     def binary_decoding(self, binary_point):
         decimal = 0
@@ -41,7 +51,7 @@ class HillClimbing:
 
     def return_float_point(self, candidate):
         candidate_array = [
-            candidate[i * int(self.n) : (i + 1) * int(self.n)]
+            candidate[i * int(self.n): (i + 1) * int(self.n)]
             for i in range(0, self.number_variables)
         ]
         candidate_np_array = np.array(candidate_array)
@@ -74,10 +84,24 @@ class HillClimbing:
                 function_termen_2 *= cos(float_points[index] / sqrt(index + 1))
 
             result = function_termen_1 - function_termen_2 + 1
+        elif self.name == "Rastrigin":
+            termen1 = 10 * self.number_variables
+            termen2 = 0
+            for index in range(0, self.number_variables):
+                big_sum_termen_1 = pow(float_points[index], 2)
+                big_sum_termen_2 = 10 * cos(2 * pi * float_points[index])
+                big_sum_final_termen = big_sum_termen_1 - big_sum_termen_2
+                termen2 += big_sum_final_termen
+            result = termen1 + termen2
+        elif self.name == "Rosenbrock":
+            result = 0
+            for index in range(0, self.number_variables - 1):
+                result += 100 * pow(float_points[index + 1] - pow(float_points[index], 2), 2) + pow(
+                    1 - float_points[index], 2)
         return result
 
     def select_v_n_from_neighbours(
-        self, val_v_c, neighbours, method="first_improvement"
+            self, val_v_c, neighbours, method="first_improvement"
     ):
         if method == "first_improvement":
             for index in range(0, neighbours.shape[0]):
@@ -106,10 +130,10 @@ class HillClimbing:
             val_v_c = self.evaluate(v_c)
             while not local:
                 neighbours = self.generate_HammingNeighbours(v_c)
-                v_n = self.select_v_n_from_neighbours(
-                    val_v_c, neighbours, method="first_improvement"
-                )
-                # v_n = self.select_v_n_from_neighbours(val_v_c, neighbours, method="best_improvement")
+                # v_n = self.select_v_n_from_neighbours(
+                #     val_v_c, neighbours, method="first_improvement"
+                # )
+                v_n = self.select_v_n_from_neighbours(val_v_c, neighbours, method="best_improvement")
                 if v_n is not None:
                     val_v_n = self.evaluate(v_n)
                 else:
@@ -139,5 +163,6 @@ class HillClimbing:
 
 
 if __name__ == "__main__":
-    h = HillClimbing("Griewangk")
+    # h = HillClimbing("Rastrigin")
+    h = HillClimbing("Rosenbrock")
     h.HillClimbingAlgorithm()
