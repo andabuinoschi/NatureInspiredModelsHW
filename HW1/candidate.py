@@ -1,3 +1,5 @@
+import random
+
 import numpy as np
 
 from HW1.params import FunctionParam
@@ -28,3 +30,19 @@ class CandidateSelector:
         for index in range(0, self.n * self.number_variables):
             candidate_neighbours[index] = switch_bit(candidate, index)
         return candidate_neighbours
+
+    def cross_over(self, population):
+        length = len(population)
+        for i in range(0, length, 2):
+            index = random.randint(1, self.n * self.number_variables - 2)
+            _tmp = population[i][0:index][:]
+            population[i][0:index] = population[i + 1][0:index][:]
+            population[i + 1][0:index] = _tmp
+
+    def mutation(self, population):
+        for i in range(len(population)):
+            population[i] = self._mutation(population[i])
+
+    def _mutation(self, candidate):
+        index = random.randint(0, self.n * self.number_variables - 1)
+        return switch_bit(candidate, index)

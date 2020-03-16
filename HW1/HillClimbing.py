@@ -3,7 +3,7 @@ import numpy as np
 from HW1.candidate import CandidateSelector
 from HW1.params import FunctionFactory, FunctionParam
 
-MAX = 50
+MAX = 3000
 
 
 class HillClimbing:
@@ -17,13 +17,13 @@ class HillClimbing:
         for index in range(0, len(binary_point)):
             decimal += binary_point[index] * pow(2, len(binary_point) - index - 1)
         real = self.params.a1 + decimal * (self.params.b1 - self.params.a1) / (
-            pow(2, len(binary_point)) - 1
+                pow(2, len(binary_point)) - 1
         )
         return real
 
     def return_float_point(self, candidate):
         candidate_array = [
-            candidate[i * int(self.params.n) : (i + 1) * int(self.params.n)]
+            candidate[i * int(self.params.n): (i + 1) * int(self.params.n)]
             for i in range(0, self.params.number_variables)
         ]
         candidate_np_array = np.array(candidate_array)
@@ -38,7 +38,7 @@ class HillClimbing:
         return self.function.evaluate(float_points)
 
     def select_v_n_from_neighbours(
-        self, val_v_c, neighbours, method="first_improvement"
+            self, val_v_c, neighbours, method="first_improvement"
     ):
         if method == "first_improvement":
             for index in range(0, neighbours.shape[0]):
@@ -54,7 +54,7 @@ class HillClimbing:
 
     def hillClimbingAlgorithm(self):
         t = 0
-        best = [1 for index in range(0, self.params.n * self.params.number_variables)]
+        best = [1 for _ in range(0, self.params.n * self.params.number_variables)]
         best_value = self.evaluate(best)
         while t < MAX:
             print(
@@ -96,8 +96,51 @@ class HillClimbing:
             )
         )
 
+    def hillClimbingGenetic(self):
+        t = 0
+        current_population = [
+            self.candidate_selector.generate_initial_candidate() for _ in range(10)
+        ]
+        population = [0 for _ in range(len(current_population))]
+
+        while t < MAX:
+            print(
+                "---------------------------- ITERATIA {0} ----------------------------".format(
+                    t
+                )
+            )
+
+            sum = 0
+            min = 1e9
+            argmin = 0
+
+            max = -1e9
+            argmax = 0
+            for i in range(len(current_population)):
+                fitness = self.evaluate(current_population[i])
+                population[i] = (current_population[i], fitness)
+                sum += fitness
+
+                if fitness < min:
+                    min = fitness
+                    argmin = i
+                if fitness > max:
+                    max = fitness
+                    argmax = i
+
+            # remove the weak chromosome
+            current_population[argmax] = population[argmin][0][:]
+
+            print(population[argmin][1])
+            # cross over
+            self.candidate_selector.cross_over(current_population)
+
+            # mutation
+            self.candidate_selector.mutation(current_population)
+
+            t += 1
+
 
 if __name__ == "__main__":
-    # h = HillClimbing("Rastrigin")
-    h = HillClimbing(FunctionFactory.create("Griewangk"))
-    h.hillClimbingAlgorithm()
+    h = HillClimbing(FunctionFactory.create("Rosenbrock"))
+    h.hillClimbingGenetic()
