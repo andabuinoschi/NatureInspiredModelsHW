@@ -30,7 +30,7 @@ class HillClimbing:
             index = np.argmin(val_neighbours)
             return neighbours[index]
 
-    def hillClimbingAlgorithm(self):
+    def hillClimbingAlgorithm(self, hybrid=False):
         t = 0
         best = [1 for _ in range(0, self.params.n * self.params.number_variables)]
         best_value = self.binary_helper.evaluate(best)
@@ -41,8 +41,11 @@ class HillClimbing:
                 )
             )
             local = False
-            ga = GeneticAlgorithm(self.function)
-            v_c = ga.run()
+            if hybrid:
+                ga = GeneticAlgorithm(self.function)
+                v_c = ga.run()
+            else:
+                v_c = self.candidate_selector.generate_initial_candidate()
             val_v_c = self.binary_helper.evaluate(v_c)
             while not local:
                 neighbours = self.candidate_selector.generate_HammingNeighbours(v_c)

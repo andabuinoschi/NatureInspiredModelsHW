@@ -9,9 +9,9 @@ class FunctionParam:
         n = np.ceil(np.log2(N))
         return int(N), int(n)
 
-    def __init__(self, a1, b1):
-        self.precision = 4
-        self.number_variables = 30
+    def __init__(self, a1, b1, precision=4, number_variables=30):
+        self.precision = precision
+        self.number_variables = number_variables
         self.a1 = a1
         self.b1 = b1
         self.N, self.n = self.return_N_n()
@@ -62,6 +62,15 @@ class Rosenbrock:
         return result
 
 
+class TPrim:
+    def __init__(self, function_param):
+        self.function_param = function_param
+
+    def evaluate(self, float_point):
+        x = float_point[0]
+        return 1 * (pow(x, 3) - 60 * pow(x, 2) + 900 * x + 100)
+
+
 class FunctionFactory:
     @staticmethod
     def create(function_type):
@@ -71,3 +80,5 @@ class FunctionFactory:
             return Rastrigin(FunctionParam(-5.12, 5.12))
         elif function_type == "Rosenbrock":
             return Rosenbrock(FunctionParam(-2.048, 2.048))
+        elif function_type == "tprim":
+            return TPrim(FunctionParam(0, 31, precision=0, number_variables=1))
