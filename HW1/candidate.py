@@ -34,10 +34,10 @@ class CandidateSelector:
     def cross_over(self, population):
         length = len(population)
         for i in range(0, length, 2):
-            index = random.randint(1, self.n * self.number_variables - 2)
-            _tmp = population[i][0:index][:]
-            population[i][0:index] = population[i + 1][0:index][:]
-            population[i + 1][0:index] = _tmp
+            index = random.randint(1, self.number_variables-1)
+            _tmp = population[i][0:index*self.n][:]
+            population[i][0:index*self.n] = population[i + 1][0:index*self.n][:]
+            population[i + 1][0:index*self.n] = _tmp
 
     def mutation(self, population):
         for i in range(len(population)):
