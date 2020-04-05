@@ -31,18 +31,25 @@ class CandidateSelector:
             candidate_neighbours[index] = switch_bit(candidate, index)
         return candidate_neighbours
 
-    def cross_over(self, population):
-        length = len(population)
-        for i in range(0, length, 2):
-            index = random.randint(1, self.number_variables-1)
-            _tmp = population[i][0:index*self.n][:]
-            population[i][0:index*self.n] = population[i + 1][0:index*self.n][:]
-            population[i + 1][0:index*self.n] = _tmp
+    def cross_over(self, parents, offspring_size):
+        offspring = np.empty(offspring_size)
+        crossover_point = random.randint(1, self.number_variables * self.n - 1)
 
-    def mutation(self, population):
+        for i in range(0, offspring_size[0]):
+            parent1_idx = i % parents.shape[0]
+            parent2_idx = (i + 1) % parents.shape[0]
+            offspring[i, 0:crossover_point] = parents[parent1_idx, 0:crossover_point]
+            offspring[i, crossover_point:] = parents[parent2_idx, crossover_point:]
+
+        return offspring
+
+    def mutation(self, population, probability):
         for i in range(len(population)):
-            population[i] = self._mutation(population[i])
+            population[i] = self._mutation(population[i], probability)
 
-    def _mutation(self, candidate):
-        index = random.randint(0, self.n * self.number_variables - 1)
-        return switch_bit(candidate, index)
+    def _mutation(self, candidate, probability):
+        _candidate = candidate[:]
+        for i in range(0, len(candidate)):
+            if random.random() < probability:
+                _candidate = switch_bit(_candidate, i)
+        return _candidate

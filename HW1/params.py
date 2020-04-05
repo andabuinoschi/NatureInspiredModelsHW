@@ -68,7 +68,7 @@ class TPrim:
 
     def evaluate(self, float_point):
         x = float_point[0]
-        return 1 * (pow(x, 3) - 60 * pow(x, 2) + 900 * x + 100)
+        return pow(x, 3) - 60 * pow(x, 2) + 900 * x + 100
 
 
 class FunctionFactory:

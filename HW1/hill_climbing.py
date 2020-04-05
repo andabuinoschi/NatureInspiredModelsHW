@@ -42,7 +42,7 @@ class HillClimbing:
             )
             local = False
             if hybrid:
-                ga = GeneticAlgorithm(self.function)
+                ga = GeneticAlgorithm(self.function, population_size=30)
                 v_c = ga.run()
             else:
                 v_c = self.candidate_selector.generate_initial_candidate()
