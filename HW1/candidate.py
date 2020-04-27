@@ -11,6 +11,25 @@ def switch_bit(bitarray, position):
     return np.array(temp)
 
 
+def get_parents_pairs(parents):
+    _parents = parents[:]
+    parents_pairs = []
+    parents_pairs_size = len(parents) / 2
+
+    while len(parents_pairs) < parents_pairs_size:
+        select_p1 = random.randint(0, len(_parents) - 1)
+        select_p2 = random.randint(0, len(_parents) - 1)
+        if select_p1 != select_p2:
+            parents_pairs.append((_parents[select_p1], _parents[select_p2]))
+            if select_p1 > select_p2:
+                _parents.pop(select_p1)
+                _parents.pop(select_p2)
+            else:
+                _parents.pop(select_p2)
+                _parents.pop(select_p1)
+    return parents_pairs
+
+
 class CandidateSelector:
     def __init__(self, function_param: FunctionParam):
         self.number_variables = function_param.number_variables
@@ -31,21 +50,36 @@ class CandidateSelector:
             candidate_neighbours[index] = switch_bit(candidate, index)
         return candidate_neighbours
 
-    def cross_over(self, parents, offspring_size):
+    def cross_over(self, parents, offspring_size, crossover_probability):
         offspring = np.empty(offspring_size)
-        crossover_point = random.randint(1, self.number_variables * self.n - 1)
 
-        for i in range(0, offspring_size[0]):
-            parent1_idx = i % parents.shape[0]
-            parent2_idx = (i + 1) % parents.shape[0]
-            offspring[i, 0:crossover_point] = parents[parent1_idx, 0:crossover_point]
-            offspring[i, crossover_point:] = parents[parent2_idx, crossover_point:]
+        parents_pairs = get_parents_pairs(parents)
+        parents_probabilities = [random.uniform(0, 1) for _ in range(len(parents_pairs))]
+
+        parent_pairs_probabilities = zip(parents_pairs, parents_probabilities)
+
+        index = 0
+        for parent_pair, probability in parent_pairs_probabilities:
+            if probability > crossover_probability:
+                crossover_point = random.randint(1, self.number_variables * self.n - 2)
+                offspring[index, 0:crossover_point] = parent_pair[0][0:crossover_point]
+                offspring[index, crossover_point:] = parent_pair[1][crossover_point:]
+                index += 1
+                offspring[index, 0:crossover_point] = parent_pair[1][0:crossover_point]
+                offspring[index, crossover_point:] = parent_pair[0][crossover_point:]
+            else:
+                offspring[index] = parent_pair[0]
+                index += 1
+                offspring[index] = parent_pair[1]
+            index += 1
 
         return offspring
 
-    def mutation(self, population, probability):
+    def mutation(self, population, probability, chromosome_mutation_probability):
         for i in range(len(population)):
-            population[i] = self._mutation(population[i], probability)
+            if random.uniform(0, 1) < chromosome_mutation_probability:
+                population[i] = self._mutation(population[i], probability)
+        return population
 
     def _mutation(self, candidate, probability):
         _candidate = candidate[:]

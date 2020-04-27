@@ -62,6 +62,17 @@ class Rosenbrock:
         return result
 
 
+class SixHumpCamelBack:
+    def __init__(self, function_param):
+        self.function_param = function_param
+
+    def evaluare(self, float_points):
+        termen1 = (4 - 2.1 * pow(float_points[0], 2) + pow(float_points[0], 4) / 3) * pow(float_points[0], 2)
+        termen2 = float_points[0] * float_points[1]
+        termen3 = (-4 + 4 * pow(float_points[1], 2)) * pow(float_points[1], 2)
+        return termen1 + termen2 + termen3
+
+
 class TPrim:
     def __init__(self, function_param):
         self.function_param = function_param
