@@ -8,12 +8,12 @@ from math import sqrt, cos, pi
 
 class ParticleSwarmOptimization:
     def __init__(self, function_type="Griewangk"):
-        self.maximum_lookback_steps = 50
-        self.precision = 9
+        self.maximum_lookback_steps = 10
+        self.precision = 7
         self.number_particles = 60
         self.inertia_factor_w1 = 0.7
-        self.particle_self_confidence_factor_w2 = 2
-        self.swarm_confidence_factor_w3 = 2
+        self.particle_self_confidence_factor_w2 = 1.8
+        self.swarm_confidence_factor_w3 = 2.1
         if function_type == "Griewangk":
             self.name = "Griewangk"
             self.number_variables = 30
@@ -98,20 +98,22 @@ class ParticleSwarmOptimization:
             for j in range(0, self.number_variables):
                 r1 = random.uniform(0, 1)
                 r2 = random.uniform(0, 1)
-                cognitive_factor = self.inertia_factor_w1 * r1 * (self.particles_best_position_p[i][j] - self.particles_positions_x[i][j])
-                social_factor = self.swarm_confidence_factor_w3 * r2 * (self.best_particle_g[j] - self.particles_positions_x[i][j])
-                self.particles_velocities_v[i][j] = self.inertia_factor_w1 * self.particles_velocities_v[i][j] + cognitive_factor + social_factor
+                cognitive_factor = self.inertia_factor_w1 * r1 * (
+                            self.particles_best_position_p[i][j] - self.particles_positions_x[i][j])
+                social_factor = self.swarm_confidence_factor_w3 * r2 * (
+                            self.best_particle_g[j] - self.particles_positions_x[i][j])
+                self.particles_velocities_v[i][j] = self.inertia_factor_w1 * self.particles_velocities_v[i][
+                    j] + cognitive_factor + social_factor
 
     def update_position(self):
         for i in range(0, self.number_particles):
             self.particles_positions_x[i] = self.particles_positions_x[i] + self.particles_velocities_v[i]
+            # Urmatoarele linii ajusteaza pozitiile particulelor in cazul in care acestea trec de domeniul lor de definitie.
             if self.name != "SixHumpCamelBack":
                 for j in range(0, self.number_variables):
-                    # adjust maximum position if necessary
                     if self.particles_positions_x[i][j] > self.b1:
                         self.particles_positions_x[i][j] = self.b1
 
-                    # adjust minimum position if neseccary
                     if self.particles_positions_x[i][j] < self.a1:
                         self.particles_positions_x[i][j] = self.a1
             elif self.name == "SixHumpCamelBack":
@@ -139,26 +141,26 @@ class ParticleSwarmOptimization:
             for index_particle in range(0, self.number_particles):
                 if self.evaluate(self.particles_best_position_p[index_particle]) < self.evaluate(self.best_particle_g):
                     self.best_particle_g = copy(self.particles_best_position_p[index_particle])
-                    # if len(best_particle_value_history) != self.maximum_lookback_steps:
-                    #     best_particle_value_history.append(self.best_particle_g)
-                    # else:
-                    #     deltas = [abs(self.evaluate(self.best_particle_g) - self.evaluate(best_particle_value_history[index])) for index in range (0, self.maximum_lookback_steps)]
-                    #     best_particle_value_history.pop(0)
-                    #     if all(delta <= pow(10, - self.precision) for delta in deltas):
-                    #         print("Cea mai buna valoare gasita pana la iteratia t = {0} este {1} si are coordonatele {2}".format(t,self.evaluate(self.best_particle_g),self.best_particle_g))
-                    #         local = True
-            print("Cea mai buna valoare gasita pana la iteratia t = {0} este {1} si are coordonatele {2}".format(t,
-                                                                                                                 self.evaluate(
-                                                                                                                     self.best_particle_g),
-                                                                                                                 self.best_particle_g))
+                    if len(best_particle_value_history) != self.maximum_lookback_steps:
+                        best_particle_value_history.append(self.best_particle_g)
+                    else:
+                        deltas = [
+                            abs(self.evaluate(self.best_particle_g) - self.evaluate(best_particle_value_history[index]))
+                            for index in range(0, self.maximum_lookback_steps)]
+                        best_particle_value_history = best_particle_value_history[1:]
+                        if all(delta <= pow(10, - self.precision) for delta in deltas):
+                            print("--------------------------------------------------------------")
+                            print("Am ajuns intr-un optim local.")
+                            print("Cea mai buna valoare gasita este {0} si are coordonatele {1}.".format(
+                                self.evaluate(self.best_particle_g), self.best_particle_g.tolist()))
+                            local = True
+            print("Cea mai buna valoare gasita pana la iteratia {0} este {1}.".format(t, self.evaluate(self.best_particle_g)))
 
 
 if __name__ == "__main__":
-    # pso = ParticleSwarmOptimization("Griewangk")
+    # Unul din costructorii urmatori trebuie comentat pentru testarea celor 4 functii.
+    pso = ParticleSwarmOptimization("Griewangk")
     # pso = ParticleSwarmOptimization("Rastrigin")
-    pso = ParticleSwarmOptimization("Rosenbrock")
+    # pso = ParticleSwarmOptimization("Rosenbrock")
     # pso = ParticleSwarmOptimization("SixHumpCamelBack")
     pso.PSOAlgorithm()
-    # last_elements = [5, 2, 1, 6, 7, 7, 6]
-    # last_elements.pop(1)
-    # print(last_elements)
