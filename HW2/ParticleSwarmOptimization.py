@@ -158,7 +158,7 @@ class ParticleSwarmOptimization:
 
 
 if __name__ == "__main__":
-    # Unul din costructorii urmatori trebuie comentat pentru testarea celor 4 functii.
+    # Unul din costructorii urmatori trebuie decomentat pentru testarea celor 4 functii.
     pso = ParticleSwarmOptimization("Griewangk")
     # pso = ParticleSwarmOptimization("Rastrigin")
     # pso = ParticleSwarmOptimization("Rosenbrock")
