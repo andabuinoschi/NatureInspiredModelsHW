@@ -88,26 +88,31 @@ Other types of selection are: rank selection, tournament selection, elitism sele
 In a more formal sense, the roulette wheel selection is the following:\\
 \begin{algorithm}[H]
 \SetAlgoLined
-\LinesNumbered
+%\LinesNumbered
 \SetKwFor{For}{for}{}{}
-\nlset{EVALUATE P} \For{$i = 1$ to $popSize$}
+%\nlset{EVALUATE P}\For{$i = 1$ to $popSize$}
+\For(\tcc*[h]{EVALUATE P}){$i = 1$ to $popSize$}
 {
   $eval[i] = fitness(P[i])$\;
 }
-\nlset{TOTAL FITNESS} \For{$i = 1$ to $popSize$}
+%\nlset{TOTAL FITNESS} \For{$i = 1$ to $popSize$}
+\For(\tcc*[h]{TOTAL FITNESS}){$i = 1$ to $popSize$}
 {
   $T += eval[i]$\;
 }
-\nlset{INDIVIDUAL SEL. PROB.} \For{$i = 1$ to $popSize$}
+%\nlset{INDIVIDUAL SEL. PROB.} \For{$i = 1$ to $popSize$}
+\For(\tcc*[h]{INDIVIDUAL SELECTION PROBABILITY}){$i = 1$ to $popSize$}
 {
   $p[i] = eval[i] / T$\;
 }
-\nlset{CUMULATIVE SEL. PROB.} $q[0] = 0$\;
+%\nlset{CUMULATIVE SEL. PROB.} $q[0] = 0$\;
+  $q[0] = 0$\tcc*[r]{CUMULATIVE SELECTION PROBABILITY}\
   \For{$i = 1$ to $popSize$}
   {
   $q[i] = q[i - 1] + p[i]$\;
   }
- \nlset{SELECTION} \For{$i = 1$ to $popSize$}
+ %\nlset{SELECTION} \For{$i = 1$ to $popSize$}
+ \For(\tcc*[h]{SELECTION}){$i = 1$ to $popSize$}
  {
  uniformly generate r in $(0, 1]$\;
  select for survival chromosome $j$ for which $q[j] \leq r < q[j+1]$\;
@@ -115,7 +120,8 @@ In a more formal sense, the roulette wheel selection is the following:\\
 \caption{Roulette wheel selection}
 \end{algorithm}
 In order to keep the population size across generations, we also have to do a cross-over over the selected candidates. Each chromosome has a probability to be a parent for the next generation chosen apriori. And for each parents pair, we randomly select a cutting point for cross-over. Let's say the the cutting point of two parents is $c$ which can be an integer value in the interval $[1, n-2]$, where $n$ is the length of the bitstring representation. Then the two offsprings are: $offspring_1 = append(parent1[0:c], parent2[c:n])$ and $offspring_2 = append(parent2[0:c], parent1[c:n])$, where the operator $[a:b]$ is an indexing operator from index a to b-1 inclusive and $append$ appends the elements from the lists given as parameters.\\
-Mutation is an operator which drives the current candidate to other possible better chromosomes. It is an operator which drives the solution to an explorative way. The mutation in a genetic algorithm consists of changing a gene into the chromosome. In our paper,  each chromosome has its own probability to suffer a mutation and also there is $1\%$ chance for a gene to be mutated.
+Mutation is an operator which drives the current candidate to other possible better chromosomes. It is an operator which drives the solution to an explorative way. The mutation in a genetic algorithm consists of changing a gene into the chromosome. In our paper,  each chromosome has its own probability to suffer a mutation and also there is $1\%$ chance for a gene to be mutated.\\
+While, crossover has a convergent nature, mutation creates a divergent behaviour. This means that if the crossover probability is high and the mutation is very low or nonexistent, the algorithm will tend to converge to local optimal points (exploitation). In contrast, if the mutation probability is high, it is an increased probability to search more in the search space and prevents population to converge to a global optimum (too much exploration). The crossover - mutation ratios may be adjusted accordingly to the optimization problem.
 \subsubsection{Hybrid Hill Climbing}
 Our research is based on an algorithm which combines Hill Climbing and a genetic algorithm. In this sense, we run a single iteration in Hill Climbing but instead of having a randomly created candidate solution, we use as starting point the result of the genetic algorithm after a number of generations. In this way, the algorithm will search locally in the genetic algorithm's result neighbourhood.
 \subsection{Testing function}
