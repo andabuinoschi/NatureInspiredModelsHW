@@ -25,18 +25,19 @@ class SimulatedAnnealingMTSP:
 
     def init_first_solution(self, distance_matrix):
         start_node = 0
-        track = [[start_node] for salesmans in range(self.number_salesman)]
+        track = [[start_node] for _ in range(self.number_salesman)]
 
         nodes_to_visit = [node.coordinates for node in self.graph.nodes if node.label != start_node]
 
         kmeans = KMeans(n_clusters=self.number_salesman)
         kmeans.fit(nodes_to_visit)
 
-        node_clusters = [[] for i in range(self.number_salesman)]
+        node_clusters = [[] for _ in range(self.number_salesman)]
 
         for node in self.graph.nodes:
-            cluster = kmeans.predict([node.coordinates])
-            node_clusters[cluster[0]].append(node)
+            if node.label != start_node:
+                cluster = kmeans.predict([node.coordinates])[0]
+                node_clusters[cluster].append(node)
 
         for c in range(self.number_salesman):
             current_cluster = node_clusters[c]
