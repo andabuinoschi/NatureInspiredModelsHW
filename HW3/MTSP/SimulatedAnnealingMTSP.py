@@ -66,7 +66,7 @@ class SimulatedAnnealingMTSP:
     def SimulatedAnnealingAlg(self):
         while self.T >= self.stop_temp and self.t < self.stop_iter:
             candidate = self.v_c
-            i = random.randint(0, self.distance_matrix.shape[0] - 2)
+            i = random.randint(1, self.distance_matrix.shape[0] - 2)
             k = random.randint(i + 1, self.distance_matrix.shape[0] - 1)
             v_n = self.twoExchangeNeighbourhood(candidate, i, k)
             self.accept(v_n)
