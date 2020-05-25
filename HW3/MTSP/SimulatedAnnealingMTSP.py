@@ -1,6 +1,7 @@
 from MTSP.Graph import Graph
 import math
 import random
+from sklearn.cluster import KMeans
 
 
 class SimulatedAnnealingMTSP:
@@ -13,8 +14,8 @@ class SimulatedAnnealingMTSP:
         self.stop_iter = stopping_iteration
         self.stop_temp = stopping_temperature
 
-        graph = Graph(tsp_file)
-        self.distance_matrix = graph.get_distance_matrix()
+        self.graph = Graph(tsp_file)
+        self.distance_matrix = self.graph.get_distance_matrix()
         self.v_c = self.init_first_solution(self.distance_matrix)
         self.best_solution = self.v_c
 
@@ -23,26 +24,34 @@ class SimulatedAnnealingMTSP:
         self.best_value = self.current_value
 
     def init_first_solution(self, distance_matrix):
-        node = 0
-        track = [node]
-        all_visiting_nodes = [i for i in range(0, distance_matrix.shape[0])]
-        all_visiting_nodes.remove(node)
-        while all_visiting_nodes:
-            # initialization with minimum, driving to local optima too quick
-            # nearest_node = min([(distance_matrix[node][j], j) for j in all_visiting_nodes], key=lambda x: x[0])
-            # node = nearest_node[1]
-            # track.append(node)
-            # all_visiting_nodes.remove(node)
+        start_node = 0
+        track = [[start_node] for salesmans in range(self.number_salesman)]
 
-            # random initialization
-            index = random.randint(0, len(all_visiting_nodes) - 1)
-            node = all_visiting_nodes[index]
-            track.append(node)
-            all_visiting_nodes.remove(node)
+        nodes_to_visit = [node.coordinates for node in self.graph.nodes if node.label != start_node]
+
+        kmeans = KMeans(n_clusters=self.number_salesman)
+        kmeans.fit(nodes_to_visit)
+
+        node_clusters = [[] for i in range(self.number_salesman)]
+
+        for node in self.graph.nodes:
+            cluster = kmeans.predict([node.coordinates])
+            node_clusters[cluster[0]].append(node)
+
+        for c in range(self.number_salesman):
+            current_cluster = node_clusters[c]
+            while current_cluster:
+                index = random.randint(0, len(current_cluster) - 1)
+                node = current_cluster[index]
+                track[c].append(node.label)
+                current_cluster.remove(node)
         return track
 
     def compute_solution_quality(self, solution):
-        return sum([self.distance_matrix[i, j] for i, j in zip(solution, solution[1:] + [solution[0]])])
+        s = 0
+        for sol in solution:
+            s += sum([self.distance_matrix[i, j] for i, j in zip(sol, sol[1:] + [sol[0]])])
+        return s
 
     def twoExchangeNeighbourhood(self, candidate, i, k):
         neighbour = candidate[0: i]
@@ -66,9 +75,14 @@ class SimulatedAnnealingMTSP:
     def SimulatedAnnealingAlg(self):
         while self.T >= self.stop_temp and self.t < self.stop_iter:
             candidate = self.v_c
-            i = random.randint(1, self.distance_matrix.shape[0] - 2)
-            k = random.randint(i + 1, self.distance_matrix.shape[0] - 1)
-            v_n = self.twoExchangeNeighbourhood(candidate, i, k)
+
+            v_n = []
+
+            for candidate_salesman in candidate:
+                i = random.randint(1, len(candidate_salesman) - 2)
+                k = random.randint(i + 1, len(candidate_salesman) - 1)
+                v_n_salesman = self.twoExchangeNeighbourhood(candidate_salesman, i, k)
+                v_n.append(v_n_salesman)
             self.accept(v_n)
             if self.current_value < self.best_value:
                 self.best_value = self.current_value
@@ -81,5 +95,5 @@ class SimulatedAnnealingMTSP:
 
 if __name__ == "__main__":
     sa = SimulatedAnnealingMTSP(1200, alpha=0.9995, tsp_file='Datasets/berlin52.tsp', stopping_iteration=1000000,
-                                stopping_temperature=math.pow(10, -5), number_travel_salesmen=2)
+                                stopping_temperature=math.pow(10, -5), number_travel_salesmen=3)
     sa.SimulatedAnnealingAlg()
