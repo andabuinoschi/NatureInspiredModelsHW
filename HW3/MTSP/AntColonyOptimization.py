@@ -56,5 +56,5 @@ class AntColonyOptimizationMTSP:
 
 
 if __name__ == "__main__":
-    aco = AntColonyOptimizationMTSP('Datasets/eil51.tsp', 5, 100, 100, 0.8, 2.5, 0.5)
+    aco = AntColonyOptimizationMTSP('Datasets/eil51.tsp', 2, 100, 100, 0.8, 2.5, 0.5)
     print(aco.AntColonyOptimizationAlg())

@@ -31,8 +31,6 @@ class Ant:
         for i in self.nodes_to_visit:
             denominator += math.pow(self.graph.pheromone_matrix[self.current_node][i], self.colony.alpha) * \
                            math.pow(self.heuristic_information[self.current_node][i], self.colony.beta)
-            # if denominator == 0.0:
-            #     denominator = math.pow(10, -5)
         probabilities_to_next_node = np.zeros(shape=self.graph.nodes_number)
         for index in range(0, self.graph.nodes_number):
             if index in self.nodes_to_visit:
