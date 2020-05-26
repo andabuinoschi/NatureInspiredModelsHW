@@ -20,8 +20,9 @@ class SimulatedAnnealingMTSP:
         self.best_solution = self.v_c
 
         self.solution_history = [self.v_c]
-        self.current_value = self.compute_solution_quality(self.v_c)
+        self.current_value = sum(self.compute_solution_quality(self.v_c))
         self.best_value = self.current_value
+        self.min_max_qualities = None
 
     def init_first_solution(self, distance_matrix):
         start_node = 0
@@ -49,10 +50,10 @@ class SimulatedAnnealingMTSP:
         return track
 
     def compute_solution_quality(self, solution):
-        s = 0
+        sums = []
         for sol in solution:
-            s += sum([self.distance_matrix[i, j] for i, j in zip(sol, sol[1:] + [sol[0]])])
-        return s
+            sums.append(sum([self.distance_matrix[i, j] for i, j in zip(sol, sol[1:] + [sol[0]])]))
+        return sums
 
     def twoExchangeNeighbourhood(self, candidate, i, k):
         neighbour = candidate[0: i]
@@ -64,7 +65,9 @@ class SimulatedAnnealingMTSP:
         return math.exp(-abs(candidate_solution_quality - self.current_value) / self.T)
 
     def accept(self, candidate):
-        candidate_quality = self.compute_solution_quality(candidate)
+        candidate_quality_per_salesman = self.compute_solution_quality(candidate)
+
+        candidate_quality = sum(candidate_quality_per_salesman)
         if candidate_quality < self.current_value:
             self.current_value = candidate_quality
             self.v_c = candidate
@@ -88,13 +91,17 @@ class SimulatedAnnealingMTSP:
             if self.current_value < self.best_value:
                 self.best_value = self.current_value
                 self.best_solution = self.v_c
+
+                best_values = self.compute_solution_quality(self.best_solution)
+                self.min_max_qualities = [min(best_values), max(best_values)]
             self.t += 1
             self.T *= self.alpha
-            print(self.best_value)
+            if self.min_max_qualities is not None:
+                print("[%.3f, %.3f] & %.3f" % (self.min_max_qualities[0], self.min_max_qualities[1], self.best_value))
             print(self.best_solution)
 
 
 if __name__ == "__main__":
-    sa = SimulatedAnnealingMTSP(1200, alpha=0.9995, tsp_file='Datasets/berlin52.tsp', stopping_iteration=1000000,
-                                stopping_temperature=math.pow(10, -5), number_travel_salesmen=3)
+    sa = SimulatedAnnealingMTSP(1200, alpha=0.9995, tsp_file='Datasets/eil76.tsp', stopping_iteration=1000000,
+                                stopping_temperature=math.pow(10, -5), number_travel_salesmen=2)
     sa.SimulatedAnnealingAlg()
