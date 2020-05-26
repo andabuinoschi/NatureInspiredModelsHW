@@ -2,17 +2,18 @@
 import numpy as np
 import math
 import random
+import copy
 
 
 class Ant:
-    def __init__(self, colony):
+    def __init__(self, colony, salesman):
         self.colony = colony
         self.graph = colony.graph
         self.total_cost = 0
         self.tour = []
         self.delta_pheromone = [[0 for i in range(0, self.graph.nodes_number)] for j in
                                 range(0, self.graph.nodes_number)]
-        self.nodes_to_visit = [i for i in range(0, self.graph.nodes_number)]
+        self.nodes_to_visit = copy.copy(self.colony.nodes_to_visit_salesmen[salesman])
         self.heuristic_information = np.zeros(shape=(self.graph.nodes_number, self.graph.nodes_number))
         for i in range(0, self.graph.nodes_number):
             for j in range(0, self.graph.nodes_number):
@@ -30,13 +31,15 @@ class Ant:
         for i in self.nodes_to_visit:
             denominator += math.pow(self.graph.pheromone_matrix[self.current_node][i], self.colony.alpha) * \
                            math.pow(self.heuristic_information[self.current_node][i], self.colony.beta)
+            # if denominator == 0.0:
+            #     denominator = math.pow(10, -5)
         probabilities_to_next_node = np.zeros(shape=self.graph.nodes_number)
         for index in range(0, self.graph.nodes_number):
             if index in self.nodes_to_visit:
-                probabilities_to_next_node[index] = math.pow(self.graph.pheromone_matrix[self.current_node][index],
-                                                             self.colony.alpha) * \
-                                                    math.pow(self.heuristic_information[self.current_node][index],
-                                                             self.colony.beta) / denominator
+                    probabilities_to_next_node[index] = math.pow(self.graph.pheromone_matrix[self.current_node][index],
+                                                                 self.colony.alpha) * \
+                                                        math.pow(self.heuristic_information[self.current_node][index],
+                                                                 self.colony.beta) / denominator
         next_node = -1
         node_chosen = False
         while not node_chosen:
