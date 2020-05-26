@@ -41,7 +41,8 @@ class Graph:
         self.nodes = np.array(self.nodes)
         self.distance_matrix = np.zeros(shape=(len(self.nodes), len(self.nodes)))
         self.construct_distance_matrix()
-        self.pheromone_matrix = np.zeros(shape=(self.nodes_number, self.nodes_number))
+        # self.pheromone_matrix = [[1 / (self.nodes_number * self.nodes_number) for i in range(0, self.nodes_number)] for j in range(0, self.nodes_number)]
+        self.pheromone_matrix = np.random.uniform(size=(self.nodes_number, self.nodes_number))
 
     def construct_distance_matrix(self):
         for line in range(0, len(self.nodes)):
