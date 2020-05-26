@@ -10,6 +10,8 @@
 \usepackage{hyperref}
 \usepackage[ruled,vlined]{algorithm2e}
 \usepackage{amsmath}
+\usepackage{placeins}
+\usepackage{afterpage}
 
 \begin{document}
 
@@ -20,7 +22,7 @@ This paper showcases a method for solving Min-Max Multiple Traveling Salesman ma
 \end{abstract}
 
 \section{Introduction}
-Traveling Salesman Problem is one of the most studied problem in combinatorial optimization, due to the complexity of finding good solutions for a large amount of cities in a timely manner. It states that: a traveling salesman has to visit a number of given cities in the shortest tour distance possible, visiting each city exactly once. The general case is MTSP in which you have more salesmen and it is needed to find subtours for them who serve a set of cities. Being in the class of NP hard problems, MTSP solution time grows exponentially with the increase in input data points. As a result, the classical optimization procedures are not adequate for this problem especially for large dimensions. In other words, as the size of the problem increases, the complexity of the problem also increases rapidly as well. We present a method for this problem by combining clustering methods with combinatorial optimization algorithms.
+Traveling Salesman Problem is one of the most studied problem in combinatorial optimization, due to the complexity of finding good solutions for a large amount of cities in a timely manner. It states that: a traveling salesman has to visit a number of given cities in the shortest tour distance possible, visiting each city exactly once. The general case is MTSP in which you have more salesmen and it is needed to find subtours for them serving a set of cities. Being in the class of NP hard problems, MTSP solution time grows exponentially with the increase in input data points. As a result, the classical optimization procedures are not adequate for this problem especially for large dimensions. In other words, as the size of the problem increases, the complexity of the problem also increases rapidly as well. We present a method for this problem by combining clustering methods with combinatorial optimization algorithms.
 
 \section{Methods}
 \subsection{Algorithms}
@@ -28,9 +30,9 @@ Traveling Salesman Problem is one of the most studied problem in combinatorial o
 K means algorithm is a method used for clustering a set of points with a label according to a similarity measure. Usually, if the data points are in an Euclidian space, then it is used their distance as similarity measure.\\
 Given a set of data points $D=\{x_1, x_2,...,x_n\}$, the algorithm iteratively search for an optimal centroid for $k$ clusters, the latter being given as parameter. The $k$ centroids are chosen initially randomly from the search space or from the data points given. Assigning each point to their clusters according to the closest centroid, the latter are adjusted by recomputing their position, converging to an optimal solution in the end.
 \subsubsection{Simulated annealing}
-Simulated Annealing algorithm is a popular metaheuristic algorithm used for solving discrete and continuous optimization problems. The key feature lies in finding the right parameters for temperature, the cooling system and $\alpha$ which is used in the cooling function. Its origins are in statistical mechanics and its fundamental idea is to accept moves resulting in worse quality solutions than the current one to escape from local optima. The probability of accepting such a move is decreased through the temperature parameter. The Metropolis acceptance criterion, which models how a thermodynamic system moves from one state to other in which the energy is minimized, is used for accepting a worse neighbourhood or not. In order to apply the algorithm to a specific problem, it is needed to define a neighbourhood structure an the cooling schedule.\\
+Simulated Annealing algorithm is a popular metaheuristic algorithm used for solving discrete and continuous optimization problems. The key feature lies in finding the right parameters for temperature, the cooling system and $\alpha$ which is used in the cooling function. Its origins are in statistical mechanics and its fundamental idea is to accept moves resulting in worse quality solutions than the current one to escape from local optima. The probability of accepting such a move is decreased through the temperature parameter. The Metropolis acceptance criterion, which models how a thermodynamic system moves from one state to other in which the energy is minimized, is used for accepting a worse neighbourhood or not. In order to apply the algorithm to a specific problem, it is needed to define a neighbourhood structure and the cooling schedule.\\
 The cooling schedule defines the way in which the temperature is going to be decreased and it is crucial for the success of the search. A very low cooling schedule will take too many iterations to reach the global optima and if the number of iterations is limited, then this can lead to an unsuccessful result. On the other hand, a too fast cooling schedule can get the algorithm trapped in a local optima. 
-The most common cooling schedule is geometric cooling schedule, which can be described by the formula $T_{k+1} = \alpha \cdot T_{k}$, where $T$ is the temperature value, $k$ is considered the iteration and $alpha$ is the cooling rate. In this type of function, $alpha$ has to be smaller but close to 1, otherwise this would lead to an accelerated cooling system. Usually, for this function $alpha$ is choosing from the interval $[0.8, 0.99]$. Another cooling schedule is the logarithmic schedule $T_{k+1} = \frac{\alpha T_k}{ln(1 + k)}$. Its convergence to reach the global optima is proved for $\alpha = 0$ but it is such a slow cooling schedule that is rarely used in practice. Even though smaller values for $alpha$ can speed it up, it is considered to be slow in general.
+The most common cooling schedule is geometric cooling schedule, which can be described by the formula $T_{k+1} = \alpha \cdot T_{k}$, where $T$ is the temperature value, $k$ is considered the iteration and $alpha$ is the cooling rate. In this type of function, $alpha$ has to be smaller but close to 1, otherwise this would lead to an accelerated cooling system. Usually, for this function $alpha$ is choosing from the interval $[0.8, 0.99]$. Another cooling schedule is the logarithmic schedule $T_{k+1} = \frac{\alpha T_k}{ln(1 + k)}$. Its convergence to reach the global optima is proved for $\alpha = 1$ but it is such a slow cooling schedule that is rarely used in practice. Even though smaller values for $alpha$ can speed it up, it is considered to be slow in general.
 The pseudocode for the algorithm can be found below:
 \begin{algorithm}[H]
 \SetAlgoLined
@@ -75,8 +77,8 @@ The pseudocode in a short brief is the following:\\
 \end{algorithm}
 The main phases of the algorithm constitute the ants' solution construction and the pheromone update. Each ant $k$ from the colony has the following properties: it exploits the construction graph in the search for optimal solutions, it has a memory about the path it followed, a starting state and an ending state, selects a move by applying a probabilistic decision rule and updates the pheromone trail associated with the used components. Each ant acts concurrently and independently and that although each ant is complex enough to find a probably poor solution, the good solutions can only emerge as the result of the collective interaction within the colony.\\
 In the algorithm, each ant concurrently builds a tour. They start from a node and for the construction step, each of them applies a probabilistic action choice rule to decide which node to visit next. In particular, the probability to visit node $j$ from node $i$ is the following:
-$$p_{ij} = \frac{[\ \tau_{ij} ] \ ^\alpha \cdot [\ \eta_{ij}]\ ^\beta}{\sum_{l \in N_i} [\ \tau_{il} ] \ ^\alpha \cdot [\ \eta_{il}]\ ^\beta}, if j \in N_i,$$
-where $\eta_{ij} = \frac{1}{d_{ij}}$ is a heuristic value that is available a priori, $\alpha$ and $\beta$ are parameters which determine the relative influence of the pheromone trail and the heuristic information, and $N_i$ represent the feasible neighbourhood of the ant when being in node $i$; the probability of choosing a node outside $N_i$ is set to 0. If $\alpha = 0$ then the closest cities are more likely to be visited, corresponding to a stochastic greedy algorithm. If $\beta = 0$, only pheromone amplification will be at work. This generally leads to poor results and for values $\alpha > 1$ it leads to rapid emergence and stagnation, a situation in which all the ants are following the same path and construct the same tour. Usually, $\alpha$ is set to 1 and $\beta$ ranges from 2 to 5.\\
+$$p_{ij} = \frac{[\ \tau_{ij} ] \ ^{\alpha} \cdot [\ \eta_{ij}]\ ^ {\beta}}{\sum_{l \in N_i} [\ \tau_{il} ] \ ^ {\alpha} \cdot [\ \eta_{il}]\ ^ {\beta}},$$
+if $j \in N_i$, where $\eta_{ij} = \frac{1}{d_{ij}}$ is a heuristic value that is available a priori, $\alpha$ and $\beta$ are parameters which determine the relative influence of the pheromone trail and the heuristic information, and $N_i$ represent the feasible neighbourhood of the ant when being in node $i$; the probability of choosing a node outside $N_i$ is set to 0. If $\alpha = 0$ then the closest cities are more likely to be visited, corresponding to a stochastic greedy algorithm. If $\beta = 0$, only pheromone amplification will be at work. This generally leads to poor results and for values $\alpha > 1$ it leads to rapid emergence and stagnation, a situation in which all the ants are following the same path and construct the same tour. Usually, $\alpha$ is set to 1 and $\beta$ ranges from 2 to 5.\\
 After the ants constructed their tour, the pheromone trails are updated. This step consists in pheromone evaporation (in order to avoid the accumulation of the pheromone trails and "forget" bad decisions previously taken in the exploration step) and then add the pheromone on the arcs the ants have crossed in their tours. Pheromone evaporation is define by 
 $$\tau_{ij} = (1 - \rho) \tau_{ij}, \forall (i,j) \in L,$$
 where $L$ is the set of arcs that connect the nodes of the graph in the problem and $0 < \rho \leq 1$ is the pheromone evaporation rate. After evaporation step, all ants deposit pheromone on the arcs they have crossed in their tour:
@@ -88,16 +90,16 @@ $$\Delta\tau_{ij}^k =
                           0 & otherwise 
                        \end{cases},
 $$
-where $C^k$, the length of the tour $T^k$ built by the k-th ant, is computed as the sum of the lengths of the arcs belonging to $T^k$. This means that the better an ant's tour is, the more pheromone the arcs belonging to this tour receive. In general, arcs that are used by many ants and which are part of short tours, receive more pheromone and therefore more likely to be chosen by ants in future iterations of the algorithm.
+where $C^k$ is the length of the tour $T^k$ built by the k-th ant; it is computed as the sum of the lengths of the arcs belonging to $T^k$. This means that the better an ant's tour is, the more pheromone the arcs belonging to this tour receive. In general, arcs that are used by many ants and which are part of short tours, receive more pheromone and therefore more likely to be chosen by ants in future iterations of the algorithm.
 \subsection{Our method}
-Our method consisted in running KMeans clustering algorithm, with the parameter $k$ set to the number of travel salesman that our problem has, then running Simulated Annealing and Ant Colony Optimization on these resulted clusters. The idea of creating these clusters was to find neighbourhoods and nodes from which each of the travel salesmen start creating their tours. We excluded the first point of the dataset (considered to be depot) while creating the clusters, and then starting constructing the tours with the depot point. These neighbourhoods have the benefit of being conglomerate and they can lead to good results (short tour costs within clusters), almost comparable to the benchmark.
+Our method consisted in running KMeans clustering algorithm, with the parameter $k$ set to the number of travel salesmen that our problem has, then running Simulated Annealing and Ant Colony Optimization on these resulted clusters. The idea of creating these clusters was to find groups of cities and nodes from which each of the travel salesmen start creating their tours. We excluded the first point of the dataset (considered to be depot) while creating the clusters, and then constructed the tours starting with the depot point. On short, each cluster plus the depot point represented instances of classical TSP problem. These clusters of cities have the benefit of being conglomerate and they can lead to good results (short tour costs within clusters), almost comparable to the benchmark. The disadvantage is that some centroids of the clusters are far apart from the depot point and this reflects in our results.
 \section{Experiments}
 The experiments were run on the following datasets: \emph{eil51}, \emph{berlin52}, \emph{eil76}, \emph{rat99} which can be accessible on TSPLib.
 \subsection{Simulated Annealing with clustering}
-For the simulated annealing the following best parameters were chosen:
+For the simulated annealing the following parameters were chosen:
 \begin{itemize}
-  \item temperature T =
-  \item cooling rate $\alpha$ = 
+  \item temperature T = 1200
+  \item cooling rate $\alpha$ = 0.9995
   \item geometric cooling schedule
 \end{itemize}
 
@@ -105,16 +107,27 @@ For the simulated annealing the following best parameters were chosen:
 \centering
 \begin{tabular}{ |c|c|c|c|c| } 
 \hline
-Instance Name & n & m & Optimal MinMax & Optimal Cost\\
+Instance Name & n (\# cities) & m (\# salesmen) & Optimal MinMax & Optimal Cost\\
 \hline
-eil51 & 51 & 2 & - & - \\ 
-eil51 & 51 & 3 & - & - \\ 
-berlin52 & 52 & 2 & - & - \\ 
-berlin52 & 52 & 3 & - & - \\ 
-eil76 & 76 & 2 & - & - \\ 
-eil76 & 76 & 3 & - & - \\ 
-rat99 & 99 & 2 & - & - \\ 
-rat99 & 99 & 3 & - & - \\ 
+  &   & 2 & [204.199, 267.417] & 471.615 \\ 
+eil51 & 51 & 3 & [145.299, 207.052] & 541.351 \\ 
+  &   & 5 & [90.584, 164.939] & 597.936 \\ 
+  &   & 7 & [52.368, 137.929] & 712.048 \\ 
+\hline
+  &   & 2 & [3504.561, 5792.916] & 9297.478 \\ 
+berlin52 & 52 & 3 & [2621.278, 3504.561] & 9549.496 \\ 
+  &   & 5 & [1353.062, 3482.195] & 11233.968 \\ 
+  &   & 7 & 1067.030, 2879.221] & 12868.747 \\ 
+\hline
+  &   & 2 & [283.372, 367.943] & 651.315 \\ 
+eil76 & 76 & 3 & [213.911, 297.207] & 755.314 \\ 
+  &   & 5 & [155.375, 186.110] & 872.618 \\ 
+  &   & 7 & [94.907, 193.164] & 996.813 \\ 
+\hline
+  &   & 2 & [860.188, 877.018] & 1737.205 \\ 
+rat99 & 99 & 3 & [429.195, 888.594] & 1980.749 \\ 
+  &   & 5 & [373.163, 671.721] & 2563.429 \\ 
+  &   & 7 & [211.729, 598.262] & 2870.676 \\ 
 \hline
 \end{tabular}
 \caption{Value results after running KMeans with Simulated Annealing}
@@ -122,7 +135,7 @@ rat99 & 99 & 3 & - & - \\
 \end{table}
 
 \subsection{Ant Colony Optimization with clustering}
-For the Ant Colony Optimization the following best parameters were chosen:
+For the Ant Colony Optimization the following parameters were chosen:
 \begin{itemize}
   \item pheromone accepting rate $\alpha$ = 0.8
   \item heuristic accepting rate $\beta$ = 2.5
@@ -135,16 +148,27 @@ For the Ant Colony Optimization the following best parameters were chosen:
 \centering
 \begin{tabular}{ |c|c|c|c|c| } 
 \hline
-Instance Name & n & m & Optimal MinMax & Optimal Cost\\
+Instance Name & n (\# cities) & m (\# salesmen) & Optimal MinMax & Optimal Cost\\
 \hline
-eil51 & 51 & 2 & - & - \\ 
-eil51 & 51 & 3 & - & - \\ 
-berlin52 & 52 & 2 & - & - \\ 
-berlin52 & 52 & 3 & - & - \\ 
-eil76 & 76 & 2 & - & - \\ 
-eil76 & 76 & 3 & - & - \\ 
-rat99 & 99 & 2 & - & - \\ 
-rat99 & 99 & 3 & - & - \\ 
+  &   & 2 & [262.191, 285.781] & 547.973 \\ 
+eil51 & 51 & 3 & [177.747, 218.622] & 599.363 \\ 
+  &   & 5 & [81.578, 192.115] & 650.346 \\ 
+  &   & 7 & [72.546, 164.789] & 810.192 \\ 
+\hline
+  &   & 2 & [4096.385, 5766.348] & 9862.734 \\ 
+berlin52 & 52 & 3 & [2504.381, 4046.373] & 10048.535 \\ 
+  &   & 5 & [1245.062, 4444.853] & 11683.358 \\ 
+  &   & 7 & [1200.664, 3571.886] & 14227.138 \\ 
+\hline
+  &   & 2 & [286.730, 369.189] & 655.919 \\ 
+eil76 & 76 & 3 & [191.295, 312.171] & 721.069 \\ 
+  &   & 5 & [130.945, 221.989] & 885.095 \\ 
+  &   & 7 & [97.864, 201.694] & 1056.032 \\ 
+\hline
+  &   & 2 & [831.072, 1009.782] & 1840.855 \\ 
+rat99 & 99 & 3 & [440.119, 914.026] & 2050.835 \\ 
+  &   & 5 & [381.065, 743.852] & 2826.066 \\ 
+  &   & 7 & [222.059, 707.777] & 3556.046 \\ 
 \hline
 \end{tabular}
 \caption{Value results after running KMeans with Ant Colony Optimization}
@@ -152,29 +176,46 @@ rat99 & 99 & 3 & - & - \\
 \end{table}
 
 \subsection{Benchmark}
+Our benchmark consists in the results run on CPLEX using other type of optimization method, whom authors are: Mihaela Breabăn, Mădălina Răschip and Raluca Necula. These results are shown in the table 3.
 
 \begin{table}[h!]
 \centering
 \begin{tabular}{ |c|c|c|c|c| } 
 \hline
-Instance Name & n & m & Optimal MinMax & Optimal Cost\\
+Instance Name & n (\# cities) & m (\# salesmen) & Optimal MinMax & Optimal Cost\\
 \hline
-eil51 & 51 & 2 & 222.73 & 444.33 \\ 
-eil51 & 51 & 3 & [150.70, 159.57] & 477.15 \\ 
-berlin52 & 52 & 2 & [4049.05, 4110.21] & 8217.94 \\ 
+ &   & 2 & 222.73 & 444.33 \\ 
+eil51  & 51 & 3 & [150.70, 159.57] & 477.15 \\ 
+  &   & 5 & [96.91, 123.96] & 615.19 \\ 
+  &   & 7 & [75.91, 112.07] & 762.83 \\ 
+\hline
+  &   & 2 & [4049.05, 4110.21] & 8217.94 \\ 
 berlin52 & 52 & 3 & [2753.63, 3244.37] & 9591.15 \\ 
-eil76 & 76 & 2 & 280.85 & 561.48 \\ 
+  &   & 5 & [1671.69, 2441.39] & 12084.90 \\ 
+  &   & 7 & [1272.06, 2440.92] & 16768.79 \\ 
+\hline
+  &   & 2 & 280.85 & 561.48 \\ 
 eil76 & 76 & 3 & [186.34, 197.34] & 587.65 \\ 
-rat99 & 99 & 2 & [620.99, 728.71] & 1456.95 \\ 
+  &   & 5 & [117.61, 150.30] & 748.43 \\ 
+  &   & 7 & [88.35, 139.62] & 964.69 \\ 
+\hline
+  &   & 2 & [620.99, 728.71] & 1456.95 \\ 
 rat99 & 99 & 3 & [426.25, 597.17] & 1780.48  \\ 
+  &   & 2 & [271.91, 469.25] & 2336.22 \\ 
+  &   & 3 & [210.41, 443.91] & 307
+  4.3 \\ 
 \hline
 \end{tabular}
 \caption{Our benchmark, see References[3]}
 \label{table:3}
 \end{table}
 
+%\afterpage{\clearpage}
+\FloatBarrier
+
 \section{Conclusion}
-blabla
+In conclusion, our method which combines the simple algorithm of KMeans, Simulated Annealing and Ant Colony Optimization doesn't lead to very good results but it is comparable with the benchmark for some of the instances. From our results' tables, it can be observed that the Min Max problem is not fully solved, since we didn't combine the algorithms with an inter-TSPs tours heuristic. There is room for improvement and some ideas are: exchange nodes between clusters, removing a node from a TSP instance which is overwhelmed by the cost tour and give it to a shorter-tour TSP instance and others.\\
+This method doesn't lead to the best solutions but it may lead to a good approximation of optima for some instances.
 
 \bibliographystyle{plain}
 \begin{thebibliography}{9}
@@ -196,11 +237,16 @@ Marco Dorigo, Thomas Stützle, "Ant Colony Optimization", 2004
 
 \bibitem{} 
 Breaban Mihaela, Nature Inspired Methods class course, 2020
-\\\url{https://profs.info.uaic.ro/~pmihaela/MOC/trajectory.html}
+\\\url{https://profs.info.uaic.ro/~pmihaela/MOC/}
 
 \bibitem{} 
 MIT Open Course Ware, "Multidisciplinary System Design Optimization", Olivier de Weck, 2010
 \\\url{https://ocw.mit.edu/courses/institute-for-data-systems-and-society/ids-338j-multidisciplinary-system-design-optimization-spring-2010/lecture-notes/MITESD_77S10_lec10.pdf}
+
+\bibitem{} 
+Wikipedia site for Simulated Annealing and Ant Colony Optimization
+\\\url{https://en.wikipedia.org/wiki/Simulated_annealing}
+\\\url{https://en.wikipedia.org/wiki/Ant_colony_optimization_algorithms}
 
 \end{thebibliography}
 \end{document}
